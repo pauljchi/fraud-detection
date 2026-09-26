@@ -68,4 +68,4 @@ The notebook covers:
   - 0.8208 F1-score
 - The model detected 71 of the 95 fraudulent test transactions, missed 24, and incorrectly flagged 7 legitimate transactions.
 - `V4`, `V14`, `V11`, and `V12` had the largest permutation importance values.
-- The results demonstrate a strong supervised modeling workflow, but further temporal validation, probability calibration, cost-sensitive threshold selection, and operational testing would be required before deployment.
+- Overall, the project shows that supervised learning can identify fraud in this dataset. However, the model would need more testing over time, probability calibration, a threshold based on real-world costs, and operational validation before it could be used in practice.

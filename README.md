@@ -1,16 +1,16 @@
-# Credit-Card Fraud Detection 
+# Credit Card Fraud Detection 
 
-As long as there have been digital payment systems, there has been fraud. Financial institutions need to have systems in place to process transactions at a rapid rate while catching as many fraudulent transactions as possible. Missing fraudulent transactions can cause headaches to users of payment systems and incur costly investigations and chargebacks. On the other hand, flagging too many legitimate transactions as fraudulent is likely to cause a good deal of frustration. What's more, financial transactions are mostly legitimate. A model that guesses "no fraud" every time will be extremely accurate, but useless. Dealing with the imbalanced classes is what makes fraud detection a challenging problem to tackle. 
+As long as there have been digital payment systems, there has been fraud. Financial institutions need to have systems in place to process transactions at a rapid rate while catching as many fraudulent transactions as possible. Failing to detect fraudulent transactions can cause headaches to users of payment systems and incur costly investigations and chargebacks. On the other hand, flagging too many legitimate transactions as fraudulent is likely to cause a good deal of frustration. What's more, financial transactions are mostly legitimate. A model that guesses "no fraud" every time will be extremely accurate, but useless. Class imbalance is one of the major challenges in fraud detection.  
 
 This project aims to investigate some of the ways in which a practitioner might deal with the problem of imbalanced classes within a dataset containing credit card transactions in Europe. It compares several statistical and machine learning approaches, evaluating their ability to rank fraud cases. The project serves as a case study rather than a deployment recommendation: the dataset covers only about two days in 2013 and most predictors are anonymized. 
 
 ## Data and analytical sample
 
-The source dataset contains 284,807 transactions made by European cardholders over approximately two days in September 2013. Only 492 transactions are labeled as fraud, a prevalence of about 0.173 percent. The data is made available by the [Machine Learning Group at Université Libre de Bruxelles](https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud).
+The source dataset contains 284,807 transactions made by European cardholders over approximately two days in September 2013. Only 492 transactions are labeled as fraud, a prevalence of about 0.173 percent. The data is available from [Machine Learning Group at Université Libre de Bruxelles](https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud).
 
-Each row includes elapsed transaction time, transaction amount, a fraud label, and 28 anonymized variables named `V1` through `V28`. Those variables are principal components: statistically constructed combinations of the original transaction characteristics. This transformation helps protect confidential information and reduces redundancy among the predictors, but also prevents real-life interpretation. For example, variable `V14` might be useful for prediction, but it cannot be described as customer behavior, merchant risk, or any other such characteristic. 
+Each row includes elapsed transaction time, transaction amount, a fraud label, and 28 anonymized variables named `V1` through `V28`. Those variables are principal components: statistically constructed combinations of the original transaction characteristics. This transformation helps protect confidential information and reduces redundancy among the predictors, but also prevents real-world interpretation. For example, variable `V14` might be useful for prediction, but it cannot be described as customer behavior, merchant risk, or any other such characteristic. 
 
-Initial exploratory analysis found no missing values, negative times, or negative transaction amounts. It also identified 1,081 exact row repetitions beyond their first occurrences. These repetitions were treated as duplicate records and were removed during data cleaning. Because the released data do not contain transaction identiifers, treating exact row repetitions as duplicates is a cleaning assumption, rather than a confirmed correction. After removing duplicates, the dataset had 283,726 transactions and 473 labeled frauds. 
+Initial exploratory analysis found no missing values, negative times, or negative transaction amounts. It also identified 1,081 exact row repetitions beyond their first occurrences. These repetitions were treated as duplicate records and were removed during data cleaning. Because the released data do not contain transaction identifiers, treating exact row repetitions as duplicates is a cleaning assumption rather than a confirmed correction. After removing duplicates, the dataset had 283,726 transactions and 473 labeled frauds. 
 
 In the cleaned dataset, fraudulent transactions had a mean of 123.87 units, compared to a mean of 88.41 units for legitimate transactions. Fraudulent transactions also had a lower median of 9.82 units, versus 22.00 for legitimate transactions. The distributions are highly skewed and fraud prevalence is higher in both the lowest and highest amount ranges than in the middle of the distribution. Fraud rates also vary across the 48-hour sample. Although some time intervals contain very few fraud observations, this is more likely to be due to variation, not due to any durable time-of-day pattern. Transactions spanning a larger time period would be necessary to investigate time-related patterns. 
 
@@ -35,7 +35,7 @@ Among these candidates, weighted XGBoost produces the highest mean cross-validat
 
 ## Interpreting the model's fraud scores
 
-The selected model assigns each transaction a number between zero and one. This fraud score is a score used to rank transactions, not an estimate of the probability of fraud. These ranks are then compared against a cutoff threshold to decide whether a transaction is flagged for review. Being flagged does not necessarily mean that a transaction is fraudulent. 
+The selected model assigns each transaction a number between zero and one. This fraud score is used to rank transactions, not provide an estimate of the probability of fraud. These ranks are then compared with a cutoff threshold to decide whether a transaction is flagged for review. Being flagged does not necessarily mean that a transaction is fraudulent. 
 
 For example, a score of 0.959 does not mean that the transaction has a 95.9 percent probability of being fraudulent. It means that the transaction in question ranks sufficiently high under this fitted model to exceed that particular score cutoff. Producing interpretable probabilities would require additional calibration steps that were not explored in this project. 
 
@@ -45,7 +45,7 @@ The model ranks transactions from higher to lower risk, but the institution must
 
 For that reason, this analysis cannot choose a single optimal cutoff. The cutoff that maximizes F1 on the out-of-fold training scores is included as a benchmark. It identifies a favorable combination of precision and recall, but it does not make a judgment on the economic costs caused by false positives versus false negatives. 
 
-Several examples of review policies are shown in the table below. For each review policy, the highest-scoring transactions are sent to review, and the table records the resulting outcomes on the test set. 
+Several examples of review policies are shown in the table below. For each review policy, the highest-scoring transactions are sent for review, and the table records the resulting outcomes on the test set. 
 
 | Review policy | Alerts | Actual alerts per 10,000 | Precision | Fraud capture | Frauds found | False alerts | Frauds missed |
 |---|---:|---:|---:|---:|---:|---:|---:|
@@ -55,17 +55,17 @@ Several examples of review policies are shown in the table below. For each revie
 | Review top 20 per 10,000 | 113 | 19.9 | 68.1% | 81.1% | 77 | 36 | 18 |
 | Review top 50 per 10,000 | 283 | 49.9 | 28.3% | 84.2% | 80 | 203 | 15 |
 
-Incremental trade-offs provide some interesting information. Increasing capacity from 10 to 20 reviews per 10,000 transactions identifies 22 additional frauds and produces 35 additional false alerts. The model demonstrates diminishing returns for greatly increasing a review policy within this test sample. 
+Incremental trade-offs provide some interesting information. Increasing capacity from 10 to 20 reviews per 10,000 transactions identifies 22 additional frauds and produces 35 additional false alerts. Within this test sample, expanding the review rate shows diminishing returns. 
 
 At the maximum-F1 reference cutoff, the model sends 78 of 56,746 transactions for review, equivalent to 13.7 alerts per 10,000 transactions. It identifies 71 of the 95 labeled frauds, produces seven false alerts, and misses 24 frauds. This Maximum-F1 reference is merely an illustrative example. It is not meant as a recommended policy. 
 
 ## Scope and limitations
 
-The model successfully places many of the labeled frauds near the top of its risk ranking within this dataset. The results do not establish that the same performance would persist over time or perform equally well at another financial institution. 
+The model successfully places many of the labeled frauds near the top of its risk ranking within this dataset. The results do not establish that the same performance would persist over time or generalize to another financial institution. 
 
 Because the 
 
-The test set only contains 95 fraud cases, so the reported metrics remain subject to sampling variation. Reclassifying even a small number of transactions could meaningfully change the reported rates. In addition, the training and test observations were randomly drawn from the same two-day period in 2013. Payment systems and fraud characteristics may have changed substantially since then. A stronger study would use newer data across a much longer time period. 
+The test set contains only 95 fraud cases, so the reported metrics remain subject to sampling variation. Reclassifying even a small number of transactions could meaningfully change the reported rates. In addition, the training and test observations were randomly drawn from the same two-day period in 2013. Payment systems and fraud characteristics may have changed substantially since then. A stronger study would use newer data across a much longer time period. 
 
 The anonymized variables further limit what can be concluded. Model diagnostics identify `V4`, `V14`, `V11`, and `V12` as especially useful for prediction. These importance measures describe predictive relationships within the fitted model. They do not show that the variables cause fraud. Without the relevant cardholder, merchant, and demographic information, this analysis cannot provide insights on real-world impacts. 
 

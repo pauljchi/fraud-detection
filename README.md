@@ -6,7 +6,7 @@ This project investigates several ways a practitioner might deal with the proble
 
 ## Data and analytical sample
 
-The source dataset contains 284,807 transactions made by European cardholders over approximately two days in September 2013. Only 492 transactions are labeled as fraud, representing a prevalence of about 0.173 percent. The data are available from the [Machine Learning Group at Université Libre de Bruxelles](https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud).
+The source dataset contains 284,807 transactions made by European cardholders over approximately two days in September 2013. Only 492 transactions are labeled as fraud, representing a prevalence of about 0.173 percent. The data is available from the [Machine Learning Group at Université Libre de Bruxelles](https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud).
 
 Each row includes elapsed transaction time, transaction amount, a fraud label, and 28 anonymized variables named `V1` through `V28`. Those variables are principal components: statistically constructed combinations of the original transaction characteristics. This transformation helps protect confidential information and reduce redundancy among the predictors, but it also prevents real-world interpretation. For example, the variable `V14` might be useful for prediction, but it cannot be interpreted as customer behavior, merchant risk, or any other such characteristic. 
 
